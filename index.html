@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>FocusFlow - Productivity Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #f5f7ff;
+      --card-bg: #ffffff;
+      --accent: #6c5ce7;
+      --accent-soft: #efe9ff;
+      --danger: #ff7675;
+      --text-main: #1f2933;
+      --text-muted: #7b8794;
+      --border-soft: #e1e5f2;
+      --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    body {
+      font-family: system-ui, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    } 
+
+
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 20px 40px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .top-date {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.2fr 1.1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 20px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 11px;
+    }
+
+   
+
+    .todo-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .todo-input {
+      flex: 1;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
+      padding: 10px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 12px;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .primary-btn:active {
+      transform: scale(0.98);
+    }
+
+    .todo-empty {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 18px 6px;
+    }
+
+    .todo-list {
+      list-style: none;
+      max-height: 340px;
+      overflow-y: auto;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf0fb;
+      gap: 10px;
+    }
+
+    .todo-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .todo-left span.completed {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .todo-delete {
+      border: none;
+      background: transparent;
+      color: #e63946;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    /* Timer */
+
+    .timer-tabs {
+      display: inline-flex;
+      gap: 6px;
+      background: #f3f4ff;
+      border-radius: 999px;
+      padding: 4px;
+      margin-bottom: 18px;
+    }
+
+    .timer-tab {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .timer-tab.active {
+      background: #fff;
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(108, 92, 231, 0.25);
+    }
+
+    .timer-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .timer-circle {
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent) 0deg, var(--accent-soft) 0deg);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .timer-time {
+      font-size: 40px;
+      font-weight: 700;
+    }
+
+    .timer-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .timer-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .timer-play {
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4);
+    }
+
+    .timer-reset {
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: none;
+      background: #f1f3ff;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .timer-status-pill {
+      background: #ffecec;
+      color: var(--danger);
+      border-radius: 999px;
+      font-size: 13px;
+      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--danger);
+    }
+
+  
+
+    .goals-list {
+      list-style: none;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    .goal-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #edf0fb;
+      gap: 8px;
+    }
+
+    .goal-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .goal-left span.completed {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .secondary-input-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .secondary-input {
+      flex: 1;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .secondary-btn {
+      border-radius: 10px;
+      padding: 8px 12px;
+      border: none;
+      background: #1abc9c;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+   
+
+    .pulse-metric {
+      margin-bottom: 18px;
+    }
+
+    .pulse-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .pulse-label {
+      color: var(--text-muted);
+    }
+
+    .pulse-value {
+      font-weight: 600;
+    }
+
+    .pulse-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #edf1ff;
+      overflow: hidden;
+    }
+
+    .pulse-bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #6c5ce7, #a66cff);
+      transition: width 0.25s ease;
+    }
+
+    .overall-score {
+      margin-top: 18px;
+      border-top: 1px dashed #e1e5f2;
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .overall-label {
+      color: var(--text-muted);
+    }
+
+    .overall-number {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 980px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+   
+    <div class="top-bar">
+      <div class="brand">
+        <div class="brand-icon">▢</div>
+        <div class="brand-name">FocusFlow</div>
+      </div>
+      <div class="top-date" id="topDate"></div>
+    </div>
+
+   
+    <div class="main-grid">
+     
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">✓</div>
+          <span>To-Do List</span>
+        </div>
+        <div class="todo-input-row">
+          <input id="todoInput" class="todo-input" type="text" placeholder="Add a new task..." />
+          <button id="todoAddBtn" class="primary-btn">Add</button>
+        </div>
+        <div id="todoEmpty" class="todo-empty">No tasks yet. Time to get organized!</div>
+        <ul id="todoList" class="todo-list"></ul>
+      </div>
+
+   
+      <div class="card">
+        <div class="timer-tabs">
+          <button class="timer-tab active" data-mode="focus">Focus</button>
+          <button class="timer-tab" data-mode="short">Short Break</button>
+          <button class="timer-tab" data-mode="long">Long Break</button>
+        </div>
+
+        <div class="timer-wrapper">
+          <div class="timer-circle">
+            <div class="timer-inner">
+              <div id="timerTime" class="timer-time">25:00</div>
+              <div class="timer-label" id="timerLabel">Focus Time</div>
+            </div>
+          </div>
+
+          <div class="timer-controls">
+            <button id="timerPlay" class="timer-play">▶</button>
+            <button id="timerReset" class="timer-reset">Reset</button>
+          </div>
+
+          <div class="timer-status-pill">
+            <span class="status-dot"></span>
+            <span id="statusText">Time to be productive!</span>
+          </div>
+        </div>
+
+        <div style="margin-top:26px;">
+          <div class="card-title" style="margin-bottom:10px;">
+            <div class="card-title-icon">★</div>
+            <span>Daily Goals</span>
+          </div>
+          <div class="secondary-input-row">
+            <input id="goalInput" class="secondary-input" type="text" placeholder="Set a main goal..." />
+            <button id="goalAddBtn" class="secondary-btn">+ Add</button>
+          </div>
+          <ul id="goalsList" class="goals-list"></ul>
+        </div>
+      </div>
+
+    
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">%</div>
+          <span>Productivity Pulse</span>
+        </div>
+
+        <div class="pulse-metric">
+          <div class="pulse-label-row">
+            <span class="pulse-label">Tasks Completed</span>
+            <span class="pulse-value"><span id="tasksPercent">0</span>%</span>
+          </div>
+          <div class="pulse-bar">
+            <div id="tasksBar" class="pulse-bar-fill"></div>
+          </div>
+        </div>
+
+        <div class="pulse-metric">
+          <div class="pulse-label-row">
+            <span class="pulse-label">Goals Achieved</span>
+            <span class="pulse-value"><span id="goalsPercent">0</span>%</span>
+          </div>
+          <div class="pulse-bar">
+            <div id="goalsBar" class="pulse-bar-fill"></div>
+          </div>
+        </div>
+
+        <div class="overall-score">
+          <div class="overall-label">Overall Score</div>
+          <div class="overall-number" id="overallScore">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+    (function () {
+      const dateEl = document.getElementById("topDate");
+      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+      dateEl.textContent = new Date().toLocaleDateString(undefined, options);
+    })();
+
+    
+    const todoInput = document.getElementById("todoInput");
+    const todoAddBtn = document.getElementById("todoAddBtn");
+    const todoList = document.getElementById("todoList");
+    const todoEmpty = document.getElementById("todoEmpty");
+
+    let todoStats = { total: 0, completed: 0 };
+    let goalStats = { total: 0, completed: 0 };
+
+    function updateEmptyState() {
+      todoEmpty.style.display = todoStats.total === 0 ? "block" : "none";
+    }
+
+    function addTodo(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      const li = document.createElement("li");
+      li.className = "todo-item";
+
+      const left = document.createElement("div");
+      left.className = "todo-left";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+
+      const span = document.createElement("span");
+      span.textContent = trimmed;
+
+      left.appendChild(checkbox);
+      left.appendChild(span);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "todo-delete";
+      delBtn.textContent = "Delete";
+
+      li.appendChild(left);
+      li.appendChild(delBtn);
+      todoList.appendChild(li);
+
+      todoStats.total++;
+      updateEmptyState();
+      updatePulse();
+
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          span.classList.add("completed");
+          todoStats.completed++;
+        } else {
+          span.classList.remove("completed");
+          todoStats.completed--;
+        }
+        updatePulse();
+      });
+
+      delBtn.addEventListener("click", () => {
+        if (checkbox.checked) todoStats.completed--;
+        todoStats.total--;
+        li.remove();
+        updateEmptyState();
+        updatePulse();
+      });
+    }
+
+    todoAddBtn.addEventListener("click", () => {
+      addTodo(todoInput.value);
+      todoInput.value = "";
+      todoInput.focus();
+    });
+
+    todoInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        addTodo(todoInput.value);
+        todoInput.value = "";
+      }
+    });
+
+ 
+    const goalInput = document.getElementById("goalInput");
+    const goalAddBtn = document.getElementById("goalAddBtn");
+    const goalsList = document.getElementById("goalsList");
+
+    function addGoal(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+
+      const li = document.createElement("li");
+      li.className = "goal-item";
+
+      const left = document.createElement("div");
+      left.className = "goal-left";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+
+      const span = document.createElement("span");
+      span.textContent = trimmed;
+
+      left.appendChild(checkbox);
+      left.appendChild(span);
+      li.appendChild(left);
+      goalsList.appendChild(li);
+
+      goalStats.total++;
+      updatePulse();
+
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          span.classList.add("completed");
+          goalStats.completed++;
+        } else {
+          span.classList.remove("completed");
+          goalStats.completed--;
+        }
+        updatePulse();
+      });
+    }
+
+    goalAddBtn.addEventListener("click", () => {
+      addGoal(goalInput.value);
+      goalInput.value = "";
+      goalInput.focus();
+    });
+
+    goalInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        addGoal(goalInput.value);
+        goalInput.value = "";
+      }
+    });
+
+ 
+    const tasksPercentEl = document.getElementById("tasksPercent");
+    const tasksBarEl = document.getElementById("tasksBar");
+    const goalsPercentEl = document.getElementById("goalsPercent");
+    const goalsBarEl = document.getElementById("goalsBar");
+    const overallScoreEl = document.getElementById("overallScore");
+
+    function calculatePercent(completed, total) {
+      if (total === 0) return 0;
+      return Math.round((completed / total) * 100);
+    }
+
+    function updatePulse() {
+      const taskPct = calculatePercent(todoStats.completed, todoStats.total);
+      const goalPct = calculatePercent(goalStats.completed, goalStats.total);
+
+      tasksPercentEl.textContent = taskPct;
+      goalsPercentEl.textContent = goalPct;
+      tasksBarEl.style.width = taskPct + "%";
+      goalsBarEl.style.width = goalPct + "%";
+
+      const overall = Math.round((taskPct + goalPct) / 2);
+      overallScoreEl.textContent = isNaN(overall) ? 0 : overall;
+    }
+
+    
+    const timerTimeEl = document.getElementById("timerTime");
+    const timerLabelEl = document.getElementById("timerLabel");
+    const statusTextEl = document.getElementById("statusText");
+    const playBtn = document.getElementById("timerPlay");
+    const resetBtn = document.getElementById("timerReset");
+    const timerTabs = document.querySelectorAll(".timer-tab");
+    const timerCircle = document.querySelector(".timer-circle");
+
+    const MODES = {
+      focus: { label: "Focus Time", seconds: 25 * 60 },
+      short: { label: "Short Break", seconds: 5 * 60 },
+      long: { label: "Long Break", seconds: 15 * 60 }
+    };
+
+    let currentMode = "focus";
+    let remainingSeconds = MODES[currentMode].seconds;
+    let timerInterval = null;
+    let isRunning = false;
+
+    function formatTime(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, "0");
+      const s = String(sec % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function updateTimerDisplay() {
+      timerTimeEl.textContent = formatTime(remainingSeconds);
+      timerLabelEl.textContent = MODES[currentMode].label;
+
+      const total = MODES[currentMode].seconds;
+      const progress = 1 - remainingSeconds / total;
+      const degrees = Math.round(progress * 360);
+      timerCircle.style.background = `conic-gradient(var(--accent) ${degrees}deg, var(--accent-soft) ${degrees}deg)`;
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      remainingSeconds = MODES[mode].seconds;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      isRunning = false;
+      playBtn.textContent = "▶";
+      statusTextEl.textContent =
+        mode === "focus" ? "Time to be productive!" : "Take a mindful break.";
+      updateTimerDisplay();
+      timerTabs.forEach((tab) =>
+        tab.classList.toggle("active", tab.dataset.mode === mode)
+      );
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      playBtn.textContent = "⏸";
+      timerInterval = setInterval(() => {
+        if (remainingSeconds > 0) {
+          remainingSeconds--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          isRunning = false;
+          playBtn.textContent = "▶";
+          statusTextEl.textContent = "Time's up! Great job!";
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      playBtn.textContent = "▶";
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    playBtn.addEventListener("click", () => {
+      if (isRunning) pauseTimer();
+      else startTimer();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      setMode(currentMode);
+    });
+
+    timerTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        setMode(tab.dataset.mode);
+      });
+    });
+
+ 
+    updateTimerDisplay();
+    updateEmptyState();
+    updatePulse();
+  </script>
+</body>
+</html>
